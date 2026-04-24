@@ -3,75 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LET Reviewer App</title>
+    <title>LPT Board Prep 2026</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; display: flex; justify-content: center; }
-        .quiz-card { background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h1 { color: #1a73e8; font-size: 1.5em; margin-bottom: 20px; }
-        .question { font-size: 1.1em; font-weight: 600; margin-bottom: 20px; text-align: left; line-height: 1.4; }
-        .option { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 8px; background: none; cursor: pointer; text-align: left; font-size: 1em; transition: 0.2s; }
-        .option:hover { border-color: #1a73e8; background-color: #f8faff; }
-        #feedback { margin-top: 15px; font-weight: bold; min-height: 24px; }
-        .score { margin-top: 20px; font-size: 0.9em; color: #666; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .app-container { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #004a99; border-bottom: 3px solid #004a99; padding-bottom: 10px; margin-top: 0; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; background: #007bff; color: white; border-radius: 8px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .btn:hover { background: #0056b3; }
+        .hidden { display: none; }
+        .option-btn { background: #fff; color: #333; border: 1px solid #ddd; text-align: left; padding: 12px; margin: 8px 0; }
+        .correct { background: #28a745 !important; color: white; border-color: #28a745; }
+        .wrong { background: #dc3545 !important; color: white; border-color: #dc3545; }
+        .score-display { font-size: 2.5rem; font-weight: bold; color: #004a99; margin: 20px 0; }
+        #question-text { font-size: 1.2rem; margin-bottom: 20px; text-align: left; font-weight: 600; line-height: 1.4; }
+        #progress { color: #666; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="quiz-card">
-    <h1>LET Professional Education</h1>
-    <div id="quiz-box">
-        <p id="question-text" class="question">Loading question...</p>
-        <div id="options-container"></div>
-        <div id="feedback"></div>
-        <p class="score">Score: <span id="score-count">0</span></p>
-    </div>
-</div>
-
-<script>
-    const questions = [
-        { q: "Which is the most basic professional obligation of a teacher?", options: ["To be a learner", "To be a leader", "To be a parent substitute", "To be a master of the subject"], correct: 0 },
-        { q: "According to Piaget, at what stage can a child think logically about concrete objects?", options: ["Sensorimotor", "Pre-operational", "Concrete Operational", "Formal Operational"], correct: 2 },
-        { q: "Which philosophy emphasizes that education should focus on the 'Great Books' and timeless truths?", options: ["Progressivism", "Perennialism", "Existentialism", "Essentialism"], correct: 1 },
-        { q: "What is the primary legal basis for the Professionalization of Teachers in the Philippines?", options: ["RA 7836", "RA 9155", "RA 4670", "RA 10533"], correct: 0 },
-        { q: "Which teaching style is most likely to result in students who are independent and self-motivated?", options: ["Authoritarian", "Permissive", "Authoritative", "Uninvolved"], correct: 2 }
-    ];
-
-    let currentIdx = 0;
-    let score = 0;
-
-    function loadQuestion() {
-        const q = questions[currentIdx];
-        document.getElementById('question-text').innerText = q.q;
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        document.getElementById('feedback').innerText = '';
+    <div class="app-container">
+        <h1>PRC LET Reviewer</h1>
         
-        q.options.forEach((opt, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'option';
-            btn.innerText = opt;
-            btn.onclick = () => check(i);
-            container.appendChild(btn);
-        });
-    }
+        <div id="menu">
+            <p>Select a category to start (30 items each):</p>
+            <button class="btn" onclick="startQuiz('gened')">General Education</button>
+            <button class="btn" onclick="startQuiz('profed')">Professional Education</button>
+            <button class="btn" onclick="startQuiz('english')">English Majorship</button>
+        </div>
 
-    function check(i) {
-        const feedback = document.getElementById('feedback');
-        if (i === questions[currentIdx].correct) {
-            score++;
-            document.getElementById('score-count').innerText = score;
-            feedback.innerText = "Correct! Loading next...";
-            feedback.style.color = "green";
-            currentIdx = (currentIdx + 1) % questions.length;
-            setTimeout(loadQuestion, 1500);
-        } else {
-            feedback.innerText = "Try again! Think about the key terms.";
-            feedback.style.color = "#d93025";
+        <div id="quiz-box" class="hidden">
+            <div id="progress">Question 1 of 30</div>
+            <div id="question-text"></div>
+            <div id="options-area"></div>
+            <button id="next-btn" class="btn hidden" style="background: #28a745;" onclick="nextQuestion()">Next Question →</button>
+        </div>
+
+        <div id="results" class="hidden">
+            <h2>Exam Result</h2>
+            <div class="score-display"><span id="score-val"></span> / 30</div>
+            <p id="remarks" style="font-size: 1.2rem; font-weight: bold;"></p>
+            <button class="btn" onclick="location.reload()">Back to Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            gened: [
+                { q: "Who is the author of 'Noli Me Tangere'?", a: ["Andres Bonifacio", "Jose Rizal", "Apolinario Mabini", "Emilio Aguinaldo"], c: "Jose Rizal" },
+                { q: "What is 25% of 320?", a: ["80", "100", "60", "75"], c: "80" },
+                { q: "The process by which plants release water through leaves:", a: ["Respiration", "Photosynthesis", "Transpiration", "Osmosis"], c: "Transpiration" },
+                { q: "Who was the first president of the Commonwealth?", a: ["Aguinaldo", "Quezon", "Osmeña", "Roxas"], c: "Quezon" },
+                { q: "In a Math sequence 1, 4, 9, 16, what is the 7th term?", a: ["36", "49", "64", "81"], c: "49" },
+                { q: "Constitutional right for religious instruction in schools:", a: ["Freedom of choice", "Religious freedom", "Academic freedom", "Right to expression"], c: "Religious freedom" },
+                { q: "The 'Father of Modern Psychology' is:", a: ["Freud", "Watson", "Wundt", "Skinner"], c: "Wundt" },
+                { q: "The smallest unit of sound in a language:", a: ["Morpheme", "Phoneme", "Syntax", "Semantics"], c: "Phoneme" },
+                { q: "Which mammal is an example of a cetacean?", a: ["Shark", "Whale", "Sea turtle", "Penguin"], c: "Whale" },
+                { q: "The sum of the angles in a triangle is:", a: ["90°", "180°", "270°", "360°"], c: "180°" },
+                { q: "Author of 'The Scarlet Letter'?", a: ["Hawthorne", "Hemingway", "Miller", "Poe"], c: "Hawthorne" },
+                { q: " 'A capella' means singing:", a: ["With piano", "Without accompaniment", "Very loud", "Fast"], c: "Without accompaniment" },
+                { q: "Longest mountain range in the Philippines?", a: ["Cordillera", "Sierra Madre", "Caraballo", "Kitanglad"], c: "Sierra Madre" },
+                { q: "What is 15% of 200?", a: ["15", "20", "30", "35"], c: "30" },
+                { q: "The greatest common factor (GCF) of 24 and 36 is:", a: ["6", "8", "12", "18"], c: "12" },
+                { q: "Smallest unit of life is the:", a: ["Atom", "Tissue", "Organ", "Cell"], c: "Cell" },
+                { q: "The first Filipino alphabet:", a: ["Abakada", "Baybayin", "Latin", "Sanskrit"], c: "Baybayin" },
+                { q: " 'Invictus' was written by:", a: ["Frost", "Henley", "Keats", "Byron"], c: "Henley" },
+                { q: "A story intended to teach a moral lesson:", a: ["Novel", "Parable", "Essay", "Journal"], c: "Parable" },
+                { q: "Tax paid on imported goods:", a: ["Income", "Tariff", "VAT", "Excise"], c: "Tariff" },
+                { q: "Square root of 144 is:", a: ["10", "11", "12", "14"], c: "12" },
+                { q: "Express 0.625 as a fraction:", a: ["5/8", "3/8", "1/2", "7/8"], c: "5/8" },
+                { q: "Solve for x: 2x + 8 = 20:", a: ["x=4", "x=6", "x=8", "x=14"], c: "x=6" },
+                { q: "Which is a prime number?", a: ["21", "27", "29", "33"], c: "29" },
+                { q: "How many sides does a hexagon have?", a: ["5", "6", "7", "8"], c: "6" },
+                { q: "Perimeter of a square with side 9m:", a: ["18m", "27m", "36m", "81m"], c: "36m" },
+                { q: "Probability of getting heads on a fair coin:", a: ["1/4", "1/3", "1/2", "2/3"], c: "1/2" },
+                { q: "The mode of 2, 3, 3, 5, 7, 3, 9 is:", a: ["2", "3", "5", "7"], c: "3" },
+                { q: "Average speed for 180 km in 3 hours?", a: ["45 km/h", "60 km/h", "90 km/h", "54 km/h"], c: "60 km/h" },
+                { q: "Study of the earth's physical features:", a: ["Biology", "Chemistry", "Geography", "Physics"], c: "Geography" }
+            ],
+            profed: [
+                { q: "Philosophy emphasizing 'learning by doing':", a: ["Idealism", "Realism", "Pragmatism", "Perennialism"], c: "Pragmatism" },
+                { q: "Teacher Hera discussed adverbs before adjectives. Example of:", a: ["Thrust", "Dangle", "Flip-flop", "Stimulus-bound"], c: "Flip-flop" },
+                { q: "Ultimate end-goal of Outcomes-Based Education (OBE):", a: ["Methods", "Input", "Competencies", "Assessment"], c: "Competencies" },
+                { q: "A globe used in class is a:", a: ["Picture", "Model", "Mock-up", "Realia"], c: "Model" },
+                { q: "RA 7836 is also known as:", a: ["Magna Carta", "Teachers Prof. Act", "Governance Act", "Kindergarten Act"], c: "Teachers Prof. Act" },
+                { q: "Piaget's stage for conservation:", a: ["Sensory", "Pre-op", "Concrete", "Formal"], c: "Concrete" },
+                { q: "Consistency of test results over time is:", a: ["Validity", "Reliability", "Objectivity", "Usability"], c: "Reliability" },
+                { q: "Not a Delor's Pillar:", a: ["Know", "Do", "Compete", "Live together"], c: "Compete" },
+                { q: "Freud's stage (0-1 year):", a: ["Oral", "Anal", "Phallic", "Latency"], c: "Oral" },
+                { q: "Stimulus-Response Proponent:", a: ["Bruner", "Thorndike", "Vygotsky", "Gardner"], c: "Thorndike" },
+                { q: "Established routine in class is for:", a: ["Control", "Discipline", "Efficiency", "Fear"], c: "Efficiency" },
+                { q: "Type of test for identifying weaknesses:", a: ["Placement", "Diagnostic", "Summative", "Aptitude"], c: "Diagnostic" },
+                { q: " 'Learning to Be' focuses on:", a: ["Skills", "Self-actualization", "Socializing", "Memorizing"], c: "Self-actualization" },
+                { q: "Index of 0.10 means the test is:", a: ["Very easy", "Very difficult", "Good", "Fair"], c: "Very difficult" },
+                { q: "Proponent of Social Learning Theory:", a: ["Bandura", "Piaget", "Maslow", "Erikson"], c: "Bandura" },
+                { q: "Highest level in Bloom's (Old):", a: ["Analysis", "Synthesis", "Evaluation", "Application"], c: "Evaluation" },
+                { q: "Bruner's 'doing' stage:", a: ["Enactive", "Iconic", "Symbolic", "Abstract"], c: "Enactive" },
+                { q: "Code of Ethics for:", a: ["Gov. officials", "Teachers", "Nurses", "Lawyers"], c: "Teachers" },
+                { q: "Scaffolding is associated with:", a: ["Vygotsky", "Piaget", "Pavlov", "Watson"], c: "Vygotsky" },
+                { q: "Most stable measure of central tendency:", a: ["Mean", "Median", "Mode", "Range"], c: "Mean" },
+                { q: "Magna Carta (RA 4670) workload hours/week:", a: ["24 hours", "30 hours", "40 hours", "48 hours"], c: "30 hours" },
+                { q: "Philosophical foundation: 'Knowledge is true if workable':", a: ["Idealism", "Realism", "Pragmatism", "Essentialism"], c: "Pragmatism" },
+                { q: "Assessment OF learning type:", a: ["Formative", "Summative", "Diagnostic", "Placement"], c: "Summative" },
+                { q: "Null curriculum refers to:", a: ["Extra activities", "Untaught topics", "Core subjects", "Secret lessons"], c: "Untaught topics" },
+                { q: "Curriculum objectives should be SMART. 'M' is:", a: ["Manageable", "Meaningful", "Measurable", "Motivational"], c: "Measurable" },
+                { q: "Teacher uses offensive language. Violated:", a: ["Code of Ethics", "RA 4670", "Professionalism", "Child Protection"], c: "Code of Ethics" },
+                { q: "Difficulty index of 0.98 means:", a: ["Reject/Revise", "Excellent", "Average", "Hard"], c: "Reject/Revise" },
+                { q: "Pillar for peace and diversity:", a: ["Know", "Do", "Live together", "To be"], c: "Live together" },
+                { q: "Quantitative increase in height/weight:", a: ["Development", "Growth", "Learning", "Maturation"], c: "Growth" },
+                { q: "Teacher receives love letter from student. Action?", a: ["Read to class", "Return and advise", "Tell parents", "Keep quiet"], c: "Return and advise" }
+            ],
+            english: [
+                { q: "Smallest unit of meaning?", a: ["Phoneme", "Morpheme", "Syntax", "Lexis"], c: "Morpheme" },
+                { q: "Hardy novel where hero sells wife:", a: ["Tess", "Jude", "Mayor of Casterbridge", "Woodlanders"], c: "Mayor of Casterbridge" },
+                { q: "Mary Shelley's Tale of Horror:", a: ["Bleak House", "Frankenstein", "Heart of Darkness", "Jane Eyre"], c: "Frankenstein" },
+                { q: "Number of lines in a sonnet:", a: ["10", "12", "14", "16"], c: "14" },
+                { q: "Sound device: 'Deafening silence'?", a: ["Metaphor", "Oxymoron", "Simile", "Pun"], c: "Oxymoron" },
+                { q: "Author of 'War and Peace':", a: ["Tolstoy", "Dostoevsky", "Dickens", "Joyce"], c: "Tolstoy" },
+                { q: "Words like waterbed and gutbuster are:", a: ["Blending", "Compounding", "Rejoicing", "Clipping"], c: "Compounding" },
+                { q: "Study of sentence structure:", a: ["Syntax", "Morphology", "Semantics", "Pragmatics"], c: "Syntax" },
+                { q: "The Indian Shakespeare?", a: ["Tagore", "Kalidasa", "Narayan", "Roy"], c: "Kalidasa" },
+                { q: "Smallest unit of sound?", a: ["Morpheme", "Phoneme", "Grapheme", "Allophone"], c: "Phoneme" },
+                { q: "Criticism focusing on class struggle:", a: ["Feminism", "Marxism", "Formalism", "Realism"], c: "Marxism" },
+                { q: "Old English epic poem:", a: ["Beowulf", "Iliad", "Odyssey", "Aeneid"], c: "Beowulf" },
+                { q: "Word formation like 'Smog':", a: ["Clipping", "Blending", "Borrowing", "Acronym"], c: "Blending" },
+                { q: "Shakespeare's 'Star-crossed lovers' play:", a: ["Hamlet", "Othello", "Romeo and Juliet", "Macbeth"], c: "Romeo and Juliet" },
+                { q: "A story to teach a moral lesson:", a: ["Fable", "Parable", "Legend", "Myth"], c: "Parable" },
+                { q: "Victorian period poet laureate:", a: ["Browning", "Tennyson", "Arnold", "Rossetti"], c: "Tennyson" },
+                { q: "Father of English Essay?", a: ["Bacon", "Lamb", "Montaigne", "Emerson"], c: "Bacon" },
+                { q: "Which has [d] sound?", a: ["Jumped", "Walked", "Played", "Laughed"], c: "Played" },
+                { q: "Title of sonnet 'How do I love thee'?", a: ["Sonnet 18", "Sonnet 43", "Sonnet 130", "Sonnet 73"], c: "Sonnet 43" },
+                { q: "Study of word origins:", a: ["Etymology", "Entomology", "Ecology", "Ethnology"], c: "Etymology" },
+                { q: "Sound device: 'Weak and weary'?", a: ["Assonance", "Alliteration", "Onomatopoeia", "Simile"], c: "Alliteration" },
+                { q: "Author of 'Catcher in the Rye'?", a: ["Salinger", "Steinbeck", "Faulkner", "Miller"], c: "Salinger" },
+                { q: " 'Blow, blow thou winter wind' is:", a: ["Metonymy", "Apostrophe", "Irony", "Litotes"], c: "Apostrophe" },
+                { q: "Shakespeare play with 'What a piece of work is a man'?", a: ["Hamlet", "Macbeth", "Othello", "King Lear"], c: "Hamlet" },
+                { q: "Identify capitalized word: 'EVERYONE met there.'", a: ["Indefinite pronoun", "Relative pronoun", "Interrogative", "Demonstrative"], c: "Indefinite pronoun" },
+                { q: "Identify 'that': 'I know that you care.'", a: ["Conjunction", "Pronoun", "Adverb", "Adjective"], c: "Conjunction" },
+                { q: "Type of writing for sporting topics:", a: ["Editorial", "Sports writing", "Feature", "News"], c: "Sports writing" },
+                { q: "A Gothic horror tale by Shelley:", a: ["Bleak House", "Frankenstein", "Heart of Darkness", "Jane Eyre"], c: "Frankenstein" },
+                { q: "The Indian Shakespeare?", a: ["Tagore", "Kalidasa", "Narayan", "Roy"], c: "Kalidasa" },
+                { q: "Proper sequence for speaking lesson:", a: ["Practice-Prod-Pres", "Pres-Practice-Prod", "Prod-Pres-Practice", "Pres-Prod-Practice"], c: "Pres-Practice-Prod" }
+            ]
+        };
+
+        let currentSet = [];
+        let currentIndex = 0;
+        let score = 0;
+
+        function startQuiz(type) {
+            currentSet = questions[type];
+            score = 0;
+            currentIndex = 0;
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('quiz-box').classList.remove('hidden');
+            showQuestion();
         }
-    }
 
-    loadQuestion();
-</script>
+        function showQuestion() {
+            const data = currentSet[currentIndex];
+            document.getElementById('progress').innerText = `Question ${currentIndex + 1} of 30`;
+            document.getElementById('question-text').innerText = data.q;
+            const optionsArea = document.getElementById('options-area');
+            optionsArea.innerHTML = "";
+            document.getElementById('next-btn').classList.add('hidden');
 
+            data.a.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.className = "btn option-btn";
+                btn.onclick = () => checkAnswer(btn, opt, data.c);
+                optionsArea.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(btn, selected, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            if (selected === correct) {
+                score++;
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                allBtns.forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+            }
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < currentSet.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-box').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('score-val').innerText = score;
+            const remarks = document.getElementById('remarks');
+            if (score >= 23) {
+                remarks.innerText = "PASSED! Congratulations, LPT!";
+                remarks.style.color = "green";
+            } else {
+                remarks.innerText = "FAILED. Review more and try again!";
+                remarks.style.color = "red";
+            }
+        }
+    </script>
 </body>
 </html>
